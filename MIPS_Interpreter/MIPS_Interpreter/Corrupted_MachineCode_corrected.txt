@@ -1,0 +1,82 @@
+/*
+    Author: Tiago Breunig, Arjun Vijay
+    Date: 04/09/2025
+    Team1
+    Corrupted Machine Code with the possible bit flips and their translations into instructions
+*/
+
+Corrupted code in the rd field:
+000000  01001   01010   01010   00000   100000 -> add $t2, $t1, $t2
+
+Possible single bit flips in the RD field:
+000000  01001   01010   11010   00000   100000 -> add blank, $t1, $t2
+000000  01001   01010   00010   00000   100000 -> add $v0, $t1, $t2
+000000  01001   01010   01110   00000   100000 -> add $t6, $t1, $t2
+000000  01001   01010   01000   00000   100000 -> add $t0, $t1, $t2 -> This is most likely the correct one because in the following instruction it adds $t0 and an immediate value, and currently $t0 isn't referenced in the original assembly instruction
+000000  01001   01010   01011   00000   100000 -> add $t3, $t1, $t2
+
+Correct following Machine Code:
+001000  01000   01011   00000   00000   000101 -> addi $t3, $t0, #0x5
+000000  01001   01010   01100   00000   100100 -> and $t4, $t1, $t2
+
+Corrupted code in the rs field:
+001100  01110   01101   00000   00000   001111 -> andi $t5, $t6, #0xF -> This is most likely the correct one because based on the following instructions the div utilizes the $t6, so we think that the original instruction was the correct one
+
+Possible single bit flips in the rs field:
+001100  11110   01101   00000   00000   001111 -> andi $t5, $fp, #0xF
+001100  00110   01101   00000   00000   001111 -> andi $t5, $a2, #0xF
+001100  01010   01101   00000   00000   001111 -> andi $t5, $t2, #0xF
+001100  01100   01101   00000   00000   001111 -> andi $t5, $t4, #0xF
+001100  01111   01101   00000   00000   001111 -> andi $t5, $t7, #0xF
+
+Correct following Machine Code:
+000100  01101   00000   00000   00000   110100 -> beq $zero, $t5, #0x34
+000101  01011   01101   00000   00000   110100 -> bne $t5, $t3, #0x34
+000000  01110   01000   00000   00000   011010 -> div $t6, $t0
+
+Corrupted code in the rt field:
+000000  00000   00010   01111   00000   010000 -> Error: The given instruction was not recognized
+
+Possible single bit flips in the rt field:
+000000  00000   10010   01111   00000   010000 -> Error: The given instruction was not recognized
+000000  00000   01010   01111   00000   010000 -> Error: The given instruction was not recognized
+000000  00000   00110   01111   00000   010000 -> Error: The given instruction was not recognized
+000000  00000   00000   01111   00000   010000 -> mfhi $t7 -> We belive this is the correct instruction because its the only possible bitflip that results in a valid instruction
+000000  00000   00011   01111   00000   010000 -> Error: The given instruction was not recognized
+
+Correct following Machine Code:
+000000  00000   00000   11000   00000   010010 -> mflo $t8
+000000  01001   01010   00000   00000   011000 -> mult $t1, $t2
+
+Corrupted code in the funct field:
+000000  01011   01100   11001   00000   100001 -> Error: The given instruction was not recognized
+
+Possible single bit flips in the funct field:
+000000  01011   01100   11001   00000   000001 -> Error: The given instruction was not recognized
+000000  01011   01100   11001   00000   110001 -> Error: The given instruction was not recognized
+000000  01011   01100   11001   00000   101001 -> Error: The given instruction was not recognized
+000000  01011   01100   11001   00000   100101 -> or $t9, $t3, $t4
+000000  01011   01100   11001   00000   100011 -> Error: The given instruction was not recognized
+000000  01011   01100   11001   00000   100000 -> add $t9, $t3, $t4 -> This is likely the correct instruction because it seems like $t9 is being used as a register to store the sum
+
+Correct following Machine Code:
+001101  11001   10000   00000   00011   111111 -> ori $s0, $t9, #0xFF
+000000  01000   01001   10001   00000   101010 -> slt $s1, $t0, $t1
+001010  01000   10010   00000   00000   001010 -> slti $s2, $t0, #0xA
+000000  01001   01010   10011   00000   100010 -> sub $s3, $t1, $t2
+001111  00000   10111   01000   00000   000000 -> lui $s7, #0x4000
+100011  10111   10100   00000   00000   000000 -> lw $s4, #0x0($s7)
+
+Corrupted code in the OpCode field:
+100011  10111   10101   00000   00000   000100 -> lw $s5, #0x4($s7)
+
+Possible single bit flips in the OpCode field:
+000011  10111   10101   00000   00000   000100 -> Error: The given instruction was not recognized
+110011  10111   10101   00000   00000   000100 -> Error: The given instruction was not recognized
+101011  10111   10101   00000   00000   000100 -> sw $s5, $s7, #0x4 -> This is most likely the correct instruction 
+100111  10111   10101   00000   00000   000100 -> Error: The given instruction was not recognized
+100001  10111   10101   00000   00000   000100 -> Error: The given instruction was not recognized
+100010  10111   10101   00000   00000   000100 -> Error: The given instruction was not recognized
+
+Correct following Machine Code:
+001111  00000   10110   00010   01000   110100 -> lui $s6, #0x1234
